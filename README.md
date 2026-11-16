@@ -4,6 +4,8 @@
 
 # Vulnetix Homebrew tap
 
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/Vulnetix/homebrew-tap)
+
 Homebrew formulae for Vulnetix tools.
 
 ## Installation
