@@ -1,12 +1,12 @@
 <p align="center">
-  <img src="pix.svg" alt="Pix, the Vulnetix mascot" width="110">
+  <img src="pix.svg" alt="Pix, the Vulnesis mascot" width="110">
 </p>
 
-# Vulnetix Homebrew tap
+# Vulnesis Homebrew tap
 
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/Vulnetix/homebrew-tap)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/Vulnesis/homebrew-tap)
 
-Homebrew formulae for Vulnetix tools.
+Homebrew formulae for Vulnesis tools.
 
 ## Installation
 
@@ -28,10 +28,10 @@ brew install vulnetix/tap/belai
 
 | Formula | Description |
 |---------|-------------|
-| vulnetix | Scan dependencies, code, secrets, IaC and containers, and query the Vulnetix VDB |
+| vulnetix | Scan dependencies, code, secrets, IaC and containers, and query the Vulnesis VDB |
 | belai | Role-managed, injection-safe LLM coding harness |
 | crit-validate | Validate CVEListv5 records with embedded CRIT data |
-| vvd-search | Interactive TUI for exploring the Vulnetix Vulnerability Database |
+| vvd-search | Interactive TUI for exploring the Vulnesis Vulnerability Database |
 
 ## License
 

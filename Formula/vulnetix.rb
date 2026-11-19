@@ -1,5 +1,5 @@
 class Vulnetix < Formula
-  desc "Scan dependencies, code, secrets, IaC and containers, and query the Vulnetix VDB"
+  desc "Scan dependencies, code, secrets, IaC and containers, and query the Vulnesis VDB"
   homepage "https://github.com/Vulnetix/cli"
   version "4.24.37"
   license "AGPL-3.0-only"
@@ -32,6 +32,6 @@ class Vulnetix < Formula
   end
 
   test do
-    assert_match "Vulnetix CLI", shell_output("#{bin}/vulnetix version 2>&1", 0)
+    assert_match "Vulnesis CLI", shell_output("#{bin}/vulnetix version 2>&1", 0)
   end
 end
