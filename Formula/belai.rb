@@ -34,3 +34,4 @@ class Belai < Formula
   test do
     refute_empty shell_output("#{bin}/belai --version 2>&1", 0)
   end
+end
