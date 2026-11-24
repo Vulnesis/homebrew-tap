@@ -49,7 +49,9 @@ for f in "${files[@]}"; do
   ok=true
   url_re='releases/download/v#[{]version[}]/([A-Za-z0-9._-]+)"'
   sha_re='^([[:space:]]*)sha256 "'
-  while IFS= read -r line; do
+  # `|| [ -n "$line" ]` keeps a last line with no newline after it: without
+  # it, belai.rb lost its closing `end` (2026-11-24, b885096a).
+  while IFS= read -r line || [ -n "$line" ]; do
     printf '%s\n' "$line" >> "$tmp"
     if [[ $line =~ $url_re ]]; then
       asset=${BASH_REMATCH[1]}
@@ -61,6 +63,11 @@ for f in "${files[@]}"; do
     fi
   done < "$f"
   if [ "$ok" != true ]; then rm -f "$tmp"; continue; fi
+  # The edit replaces values in place, so the line count must not change.
+  if [ "$(grep -c '' "$tmp")" -ne "$(grep -c '' "$f")" ]; then
+    echo "::error::$name: the edited formula has a different number of lines; not written"
+    rm -f "$tmp"; exit 1
+  fi
   sed -i "0,/^\( *\)version \"[^\"]*\"/s//\1version \"$new\"/" "$tmp"
   mv "$tmp" "$f"
   echo "$name: $cur -> $new"
