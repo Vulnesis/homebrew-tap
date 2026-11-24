@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+# Move each formula to its project's latest release, once that release is
+# ready: the release run's canary passed (when the workflow has one), and
+# checksums.txt lists every asset the formula installs. Never moves a formula
+# back. Run by .github/workflows/follow-releases.yml; the projects' own release
+# workflows no longer push here, so no token outside this repository is needed.
+#
+#   scripts/follow-releases [Formula/<name>.rb ...]   (default: every formula)
+#
+# Needs GH_TOKEN (this repository's GITHUB_TOKEN; the projects are public).
+# Prints one line per formula and leaves the edits in the working tree.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+# ready <owner/repo> <tag>: the release run for <tag> passed its canary.
+ready() {
+  local repo=$1 tag=$2 run jobs
+  run=$(gh api "repos/$repo/actions/runs?head_branch=$tag&per_page=20" \
+    --jq '[.workflow_runs[] | select(.name == "Release")] | sort_by(.created_at) | last | .id // empty')
+  [ -n "$run" ] || return 0 # released by hand: nothing to wait for
+  jobs=$(gh api "repos/$repo/actions/runs/$run/jobs?per_page=100" --paginate \
+    --jq '.jobs[] | "\(.name)\t\(.status)\t\(.conclusion // "")"')
+  if grep -q '^canary	' <<<"$jobs"; then
+    grep -q '^canary	completed	success$' <<<"$jobs"
+  else
+    grep -qE '^release	completed	success$' <<<"$jobs"
+  fi
+}
+
+files=("$@")
+[ ${#files[@]} -gt 0 ] || files=(Formula/*.rb)
+for f in "${files[@]}"; do
+  name=$(basename "$f" .rb)
+  repo=$(grep -oE 'github\.com/[^/]+/[^/]+/releases/download' "$f" | head -n1 | cut -d/ -f2,3)
+  [ -n "$repo" ] || { echo "$name: no release URL; skipped"; continue; }
+  cur=$(sed -n 's/^ *version "\([^"]*\)".*/\1/p' "$f" | head -n1)
+  tag=$(gh api "repos/$repo/releases/latest" --jq .tag_name 2>/dev/null || true)
+  [ -n "$tag" ] || { echo "$name: $repo has no latest release"; continue; }
+  new=${tag#v}
+  if [ "$new" = "$cur" ]; then echo "$name: at $cur"; continue; fi
+  if [ "$(printf '%s\n%s\n' "$cur" "$new" | sort -V | tail -n1)" = "$cur" ]; then
+    echo "$name: $cur is newer than $repo latest $new; left alone"; continue
+  fi
+  if ! ready "$repo" "$tag"; then echo "$name: $repo $tag is not ready (canary)"; continue; fi
+  sums=$(curl -fsSL --retry 5 --retry-all-errors "https://github.com/$repo/releases/download/$tag/checksums.txt") ||
+    { echo "::warning::$name: $repo $tag has no checksums.txt"; continue; }
+
+  tmp=$(mktemp)
+  ok=true
+  url_re='releases/download/v#[{]version[}]/([A-Za-z0-9._-]+)"'
+  sha_re='^([[:space:]]*)sha256 "'
+  while IFS= read -r line; do
+    printf '%s\n' "$line" >> "$tmp"
+    if [[ $line =~ $url_re ]]; then
+      asset=${BASH_REMATCH[1]}
+      sum=$(awk -v a="$asset" '$2 == a || $2 == "*" a { print $1 }' <<<"$sums")
+      if [ ${#sum} -ne 64 ]; then echo "::warning::$name: no checksum for $asset in $tag"; ok=false; break; fi
+      IFS= read -r next
+      [[ $next =~ $sha_re ]] || { echo "::warning::$name: no sha256 line after $asset"; ok=false; break; }
+      printf '%ssha256 "%s"\n' "${BASH_REMATCH[1]}" "$sum" >> "$tmp"
+    fi
+  done < "$f"
+  if [ "$ok" != true ]; then rm -f "$tmp"; continue; fi
+  sed -i "0,/^\( *\)version \"[^\"]*\"/s//\1version \"$new\"/" "$tmp"
+  mv "$tmp" "$f"
+  echo "$name: $cur -> $new"
+done
