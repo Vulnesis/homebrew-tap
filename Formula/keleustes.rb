@@ -1,28 +1,28 @@
 class Keleustes < Formula
   desc "Desktop Software Factory that coordinates belai hosts"
   homepage "https://github.com/Vulnesis/keleustes"
-  version "0.1.0-rc.2"
+  version "0.1.0-rc.3"
   license "Apache-2.0"
 
   on_macos do
     on_arm do
       url "https://github.com/Vulnesis/keleustes/releases/download/v#{version}/keleustes-darwin-arm64"
-      sha256 "520e21de1fe428537cf515dc6a71020570fe9df541753c248a5aab3b27c8a271"
+      sha256 "1015553872317f96bcc51c893a72a8fd487365e9782c9e48d91f99c72e73fe9e"
     end
     on_intel do
       url "https://github.com/Vulnesis/keleustes/releases/download/v#{version}/keleustes-darwin-amd64"
-      sha256 "74cb9e14a010d2e4e43d314ab7a2f4066d7155a06ec96c48a9dee748dfba2b0f"
+      sha256 "b2cf57d544a42eb8695026835843de9537093de5f160a37230f3c62a038f6346"
     end
   end
 
   on_linux do
     on_arm do
       url "https://github.com/Vulnesis/keleustes/releases/download/v#{version}/keleustes-linux-arm64"
-      sha256 "24dfbbc436441801832b047feb1baa6d1c5631a6a92eaba926d21196eec56313"
+      sha256 "4429d55551ad0c7357d7007a1e779d59a922abcfa0b1a6e0d77c01c4af3cebce"
     end
     on_intel do
       url "https://github.com/Vulnesis/keleustes/releases/download/v#{version}/keleustes-linux-amd64"
-      sha256 "526147bb789cf3abd8b39fee2c1def9a65e722f877af357ab399682cdfdf35a0"
+      sha256 "a02a1d8927cd06c57c2de9c7da58f42983c002491003a81d382a12a27194ef70"
     end
   end
 
