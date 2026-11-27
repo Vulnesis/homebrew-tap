@@ -30,6 +30,7 @@ brew install vulnetix/tap/belai
 |---------|-------------|
 | vulnetix | Scan dependencies, code, secrets, IaC and containers, and query the Vulnesis VDB |
 | belai | Role-managed, injection-safe LLM coding harness |
+| keleustes | Desktop Software Factory that coordinates belai hosts |
 | crit-validate | Validate CVEListv5 records with embedded CRIT data |
 | vvd-search | Interactive TUI for exploring the Vulnesis Vulnerability Database |
 
